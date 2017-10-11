@@ -36,20 +36,46 @@ Add `vue-masonry-css` to your project:
 By script..
 
 ```HTML
+<script src="https://unpkg.com/vue"></script>
 <script src="https://unpkg.com/vue-masonry-css"></script>
 ```
 
 Or as a module... `npm install vue-masonry-css --save-dev`
 
 ```JS
+import Vue from 'vue'
 import VueMasonry from 'vue-masonry-css'
+
+Vue.use(VueMasonry);
 ```
 
 In your HTML template...
 ```HTML
 <masonry
-  cols="3"
-  gutter="30px"
+  :cols="3"
+  :gutter="'30px'"
+  >
+  <div v-for="(item, index) in 10" :key="index">Item: {{index + 1}}</div>
+</masonry>
+```
+
+### Notes
+
+- At the moment, only works with `v-for="..` elements with `:key="`
+- Does not work with `<transition-group />`
+
+Both of these drawbacks are due to how Vue renders child elements and the ideal masonry layout technique we're aiming to use. _(I'm looking for workarounds with any help from the community!)_
+
+### Resposive Breakpoints
+
+Different columns and gutter sizes can be specified by passing an object containing key's of the window widths and their values representing the number of columns or gutter size. To have a fallback value, use the `default` key.
+
+_note:_ The `cols=` attribute needs to use Vues bind method to evaluate objects. Instead of `cols=""` use either `v-bind:cols="{ 700: 3 }"` or the shorthand `:cols="{ 700: 3 }"`
+
+```HTML
+<masonry
+  :cols="{default: 4, 1000: 3, 700: 2, 400: 1}"
+  ~:gutter="{default: '30px', 7000: '20px'}"~
   >
   <div>My Element</div>
   <div>My Element</div>

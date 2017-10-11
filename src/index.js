@@ -1,42 +1,4 @@
 const MasonryComponent = {
-  render: function (createElement) {
-    var prevChildrenInColumns = this.prevColumns || [];
-    var childrenInColumns = this.itemsInColumns();
-    var columns = [];
-
-    //console.log(childrenInColumns);
-
-    for(var i = 0; i < childrenInColumns.length; i++) {
-      var column = createElement('div', {
-        class: 'hello',
-        key: i + '-' + childrenInColumns.length,
-        style: {
-          width: (100 / this.displayColumns) + '%',
-          border: '0 solid transparent',
-          borderLeftWidth: this.displayGutter
-        }
-      }, childrenInColumns[i]);
-
-      columns.push(column);
-    }
-
-    this.prevColumns = childrenInColumns;
-
-    var wrapper = createElement(
-      this.tag,   // tag name
-      this.css ? {
-        class: 'my-mason',
-        style: {
-          display: 'flex',
-          marginLeft: '-' + this.displayGutter
-        }
-      } : null,
-      columns // array of children
-    );
-
-    return wrapper;
-
-  },
   props: {
     tag: {
       type: [String],
@@ -62,100 +24,87 @@ const MasonryComponent = {
     }
   },
   mounted: function() {
-    this.reCalculateColumnCount();
+    this.reCalculate();
 
     if(window) {
-      window.addEventListener('resize', this.reCalculateColumnCount);
+      window.addEventListener('resize', this.reCalculate);
     }
   },
   beforeDestroy: function() {
     if(window) {
-      window.removeEventListener('resize', this.reCalculateColumnCount);
+      window.removeEventListener('resize', this.reCalculate);
     }
   },
   methods: {
     reCalculate: function() {
-      var windowWidth = (window ? window.innerWidth : null) || Infinity;
+      const windowWidth = (window ? window.innerWidth : null) || Infinity;
 
       this.reCalculateColumnCount(windowWidth);
 
       this.reCalculateGutterSize(windowWidth);
     },
-    _getBreakpointValueFromObj: function(object, windowSize) {
+    _getBreakpointValue: function(mixed, windowWidth) {
+      const valueAsNum = parseInt(mixed);
 
-      //
+      if(valueAsNum > -1) {
+        return mixed;
+      }else if(typeof mixed !== 'object') {
+        return 0;
+      }
 
+      let matchedBreakpoint = Infinity;
+      let matchedValue = mixed.default || 0;
+
+      for(let k in mixed) {
+        const breakpoint = parseInt(k);
+        const breakpointValRaw = mixed[breakpoint];
+        const breakpointVal = parseInt(breakpointValRaw);
+
+        if(isNaN(breakpoint) || isNaN(breakpointVal)) {
+          continue;
+        }
+
+        const isNewBreakpoint = windowWidth <= breakpoint && breakpoint < matchedBreakpoint;
+
+        if(isNewBreakpoint) {
+          matchedBreakpoint = breakpoint;
+          matchedValue = breakpointValRaw;
+        }
+      }
+
+      return matchedValue;
     },
     reCalculateGutterSize: function(windowWidth) {
-      var gutterSize = 0;
-
-      if(typeof this.gutter == 'string' || typeof this.gutter == 'number') {
-        if(this.gutter * 1 > 0) {
-          gutterSize = this.gutter + 'px';
-        } else if(parseInt(this.gutter) > 0) {
-          gutterSize = this.gutter;
-        }
-
-        this.gutter = gutterSize;
-
-        return;
-      }
-
-      // todo loop trough object
-
+      this.displayGutter = this._getBreakpointValue(this.gutter, windowWidth);
     },
     reCalculateColumnCount: function(windowWidth) {
-      // Allow for single number prop :cols="3"
-      if(parseInt(this.cols) > 0) {
-        this.displayColumns = this.cols * 1;
-        return;
-      }
+      let newColumns = this._getBreakpointValue(this.cols, windowWidth);
 
-      const breakpointColsObject = this.cols || {};
-      let matchedBreakpoint = Infinity;
-      let defaultColumns = 2;
-      var breakpointColumns = 0;
+      // final bit of making sure its a correct value
+      newColumns = Math.max(1, newColumns * 1 || 0);
 
-      for(var breakpoint in breakpointColsObject) {
-        const optBreakpoint = parseInt(breakpoint);
-        const isMaybeCurrentBreakpoint = windowWidth <= optBreakpoint && optBreakpoint < matchedBreakpoint;
-
-        if(optBreakpoint > 0 && isMaybeCurrentBreakpoint) {
-          matchedBreakpoint = optBreakpoint;
-          breakpointColumns = Math.max(1, breakpointColsObject[breakpoint] || 0);
-        } else if(typeof breakpoint == 'string'){
-          defaultColumns = breakpointColsObject[breakpoint] || 0;
-        }
-      }
-
-      var newColumns = breakpointColumns || defaultColumns || 2;
-
-      if(newColumns !== this.displayColumns) {
-        this.displayColumns = newColumns;
-      }
-
-      console.log(this.displayColumns);
+      this.displayColumns = newColumns;
     },
     itemsInColumns: function() {
-      var currentColumnCount = this.displayColumns;
-      var itemsInColumns = [];
-      var items = this.$slots.default || [];
+      const currentColumnCount = this.displayColumns;
+      const itemsInColumns = [];
+      let items = this.$slots.default || [];
 
-      // This component does not work with transition-group yet,
-      // so we'll be helpful and ignore it
-      if(items.length === 1 && items[0].componentOptions.tag == 'transition-group') {
+      // This component does not work with a child
+      // <transition-group /> ..yet, so we'll be helpful and skip it
+      if(items.length === 1 && items[0].componentOptions && items[0].componentOptions.tag == 'transition-group') {
         items = items[0].componentOptions.children;
       }
 
-      for (var i = 0; i < items.length; i++) {
-        // skip text tags
+      for (let i = 0; i < items.length; i++) {
+        // skip Vues' text tags
         if(!items[i].tag && items[i].text) {
           i--;
           items.splice(i, 1);
           continue;
         }
 
-        var columnIndex = i % currentColumnCount;
+        const columnIndex = i % currentColumnCount;
 
         if(!itemsInColumns[columnIndex]) {
           itemsInColumns[columnIndex] = [];
@@ -166,6 +115,42 @@ const MasonryComponent = {
 
       return itemsInColumns;
     }
+  },
+  render: function (createElement) {
+    const childrenInColumns = this.itemsInColumns();
+    const columns = [];
+
+    for(let i = 0; i < childrenInColumns.length; i++) {
+      const column = createElement('div', {
+        class: 'hello',
+        key: i + '-' + childrenInColumns.length,
+        style: {
+          boxSizing: 'border-box',
+          backgroundClip: 'padding-box',
+          width: (100 / this.displayColumns) + '%',
+          border: '0 solid transparent',
+          borderLeftWidth: this.displayGutter
+        }
+      }, childrenInColumns[i]);
+
+      columns.push(column);
+    }
+
+    this.prevColumns = childrenInColumns;
+
+    const wrapper = createElement(
+      this.tag,   // tag name
+      this.css ? {
+        //class: 'my-mason',
+        style: {
+          display: 'flex',
+          marginLeft: '-' + this.displayGutter
+        }
+      } : null,
+      columns // array of children
+    );
+
+    return wrapper;
   }
 };
 

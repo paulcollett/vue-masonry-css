@@ -9,9 +9,7 @@ module.exports = {
     ]
   },
   output: {
-    filename: './demo-bundle.js',
-    libraryTarget: 'window',
-    library: 'Vue'
+    filename: './demo-bundle.js'
   },
   resolve: {
     alias: {

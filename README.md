@@ -22,7 +22,7 @@ Plain ol, div columns to the rescue!
 
 #### 😄 What does this do
 * Responsive! ..always
-* IE 9+ CSS Support
+* ~IE 9+ CSS Support~ (TODO: We're needing to prefix flex)
 * Depedancy & jQuery free
 * CSS powered (Fast loading & Performant)
 * Gutters
@@ -60,10 +60,10 @@ In your HTML template...
 
 ### Notes
 
-- At the moment, only works with `v-for="..` child elements with `:key="`
+- At the moment, only works with `v-for="..` child elements with `:key="..`
 - Does not work with `<transition-group />`
 
-Both of these drawbacks are due to how Vue renders child elements and the ideal masonry layout technique we're aiming to use. _(I'm looking for workarounds with any help from the community!)_
+Both of these drawbacks are conflicts with how Vue tracks & renders child elements and the layout technique we're aiming for. _(Any community help around vue rendering or other workarounds is greatly appreciated)_
 
 ### Resposive Breakpoints
 

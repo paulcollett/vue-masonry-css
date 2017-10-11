@@ -122,8 +122,8 @@ const MasonryComponent = {
 
     for(let i = 0; i < childrenInColumns.length; i++) {
       const column = createElement('div', {
-        class: 'hello',
-        key: i + '-' + childrenInColumns.length,
+        //class: 'my-masonry_column',
+        //key: i + '-' + childrenInColumns.length,
         style: {
           boxSizing: 'border-box',
           backgroundClip: 'padding-box',
@@ -139,9 +139,9 @@ const MasonryComponent = {
     this.prevColumns = childrenInColumns;
 
     const wrapper = createElement(
-      this.tag,   // tag name
+      this.tag, // tag name
       this.css ? {
-        //class: 'my-mason',
+        //class: 'my-masonry',
         style: {
           display: 'flex',
           marginLeft: '-' + this.displayGutter

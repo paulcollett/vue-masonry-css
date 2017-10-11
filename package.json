@@ -1,0 +1,47 @@
+{
+  "name": "vue-masonry-css",
+  "version": "0.0.1",
+  "description": "Vue Masonry component powered by CSS, dependancy free",
+  "main": "dist/vue-masonry.common.js",
+  "module": "dist/vue-masonry.es2015.js",
+  "unpkg": "dist/vue-masonry.min.js",
+  "jsdelivr": "dist/vue-masonry.min.js",
+  "scripts": {
+    "build": "node ./build.js && npm run build:demo",
+    "build:demo": "cd ./demo && webpack",
+    "dev": "cd ./demo && webpack-dev-server --progress --colors",
+    "preversion": "npm run build",
+    "prepublishOnly": "npm run build",
+    "publish-package": "git push && git push --tags && npm publish --registry=https://registry.npmjs.org/"
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "vue",
+    "vue.js",
+    "masonry",
+    "masonary",
+    "component",
+    "css"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/paulcollett/vue-masonry-css.git"
+  },
+  "author": "Paul Collett",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/paulcollett/vue-masonry-css/issues"
+  },
+  "homepage": "https://github.com/paulcollett/vue-masonry-css#readme",
+  "devDependencies": {
+    "buble-loader": "^0.4.1",
+    "rollup": "^0.50.0",
+    "rollup-plugin-buble": "^0.16.0",
+    "uglify-js": "^3.1.3",
+    "vue": "^2.4.4",
+    "webpack": "^3.6.0",
+    "webpack-dev-server": "^2.9.1"
+  }
+}

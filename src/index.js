@@ -87,7 +87,7 @@ const MasonryComponent = {
     },
     itemsInColumns: function() {
       const currentColumnCount = this.displayColumns;
-      const itemsInColumns = [];
+      const itemsInColumns = new Array(currentColumnCount);
       let items = this.$slots.default || [];
 
       // This component does not work with a child

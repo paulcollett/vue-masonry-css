@@ -4,27 +4,26 @@ A new masonry component powered by CSS to be fast loading and free of jQuery or 
 
 ### 😎 Why?
 
-Existing solutions like Vue wrapped DeSandro Masonry, while great had downfalls in our Vue app. It required rendering the DOM on load and on during resize before determining the layout which lead to a slow, laggy experiance that would occasionally break the layout completely during resize. It also had depanancies on jQuery and while being feature packed it showed in the large file size.
+Existing solutions like Vue wrapped DeSandro Masonry, while great had downfalls in our Vue app. It required rendering the DOM on load and on during resize before determining the layout which lead to a slow, laggy experiance that would occasionally break the layout completely during resize. It also had dependancies on jQuery and while being feature packed it showed in the large file size.
 
-To combat this, we looked into the latest techniques using just CSS, including flexbox & grid which fell short outside of basic images. CSS columns came the closest and while trying to work around the ordering issue (orders down each column before reflowing to the next) the reflow and loss in ordering still occured when working with large elements.
+To combat this, we looked into the latest techniques using just CSS, including flexbox & grid which fell short for anything other than basic images. CSS columns came the closest though the ordering reflow (orders down each column before reflowing to the next) visually broke when working with large different sized  elements.
 
 Plain ol, div columns to the rescue!
 
-*`vue-masonry-css`* Is a Vue Component with a simple interface to order items into the desired columns at specified breakpoints. With minimal CSS this leads to a quick, reliable solution that also has great browser support and performance.
+*`vue-masonry-css`* Is a Vue Component with a simple interface to order items into the desired columns at specified breakpoints. With minimal CSS this leads to a quick, reliable solution that also has great browser support along with rendering performance.
 
 #### 🏳️ What doesn't this do
 
-* Animate when sorting
-* Work with elements with different widths
+* Animate when sorting (..we're keeping it simple here)
+* Work with elements of different widths
 * Box algorithm (not really needed if your elements have the same width)
 * Break when resizing (at least, thats the goal)
-* Load and render the DOM before sorting out the layout <= actually thats a plus
+* Load and render the DOM before sorting out the layout <= actually thats the plus!
 
 #### 😄 What does this do
 * Responsive! ..always
 * IE 9+ CSS Support
 * Depedancy & jQuery free
-* Work with existing load animations (say fade in)
 * CSS powered (Fast loading & Performant)
 * Gutters
 
@@ -55,13 +54,13 @@ In your HTML template...
   :cols="3"
   :gutter="'30px'"
   >
-  <div v-for="(item, index) in 10" :key="index">Item: {{index + 1}}</div>
+  <div v-for="(item, index) in items" :key="index">Item: {{index + 1}}</div>
 </masonry>
 ```
 
 ### Notes
 
-- At the moment, only works with `v-for="..` elements with `:key="`
+- At the moment, only works with `v-for="..` child elements with `:key="`
 - Does not work with `<transition-group />`
 
 Both of these drawbacks are due to how Vue renders child elements and the ideal masonry layout technique we're aiming to use. _(I'm looking for workarounds with any help from the community!)_
@@ -75,12 +74,9 @@ _note:_ The `cols=` attribute needs to use Vues bind method to evaluate objects.
 ```HTML
 <masonry
   :cols="{default: 4, 1000: 3, 700: 2, 400: 1}"
-  ~:gutter="{default: '30px', 7000: '20px'}"~
+  :gutter="{default: '30px', 7000: '20px'}"
   >
-  <div>My Element</div>
-  <div>My Element</div>
-  <div>My Element</div>
-  <div>My Element</div>
+  <div v-for="(item, index) in items" :key="index">Item: {{index + 1}}</div>
 </masonry>
 ```
 

@@ -144,8 +144,7 @@ const MasonryComponent = {
       this.css ? {
         //class: 'my-masonry',
         style: {
-          display: 'flex',
-          marginLeft: '-' + this.displayGutter
+          display: ['-webkit-box', '-ms-flexbox', 'flex'],
           marginLeft: '-' + gutterSize
         }
       } : null,

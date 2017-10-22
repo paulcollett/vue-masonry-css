@@ -1,3 +1,35 @@
+const MasonryBreakpointValue = (mixed, windowWidth) => {
+  const valueAsNum = parseInt(mixed);
+
+  if(valueAsNum > -1) {
+    return mixed;
+  }else if(typeof mixed !== 'object') {
+    return 0;
+  }
+
+  let matchedBreakpoint = Infinity;
+  let matchedValue = mixed.default || 0;
+
+  for(let k in mixed) {
+    const breakpoint = parseInt(k);
+    const breakpointValRaw = mixed[breakpoint];
+    const breakpointVal = parseInt(breakpointValRaw);
+
+    if(isNaN(breakpoint) || isNaN(breakpointVal)) {
+      continue;
+    }
+
+    const isNewBreakpoint = windowWidth <= breakpoint && breakpoint < matchedBreakpoint;
+
+    if(isNewBreakpoint) {
+      matchedBreakpoint = breakpoint;
+      matchedValue = breakpointValRaw;
+    }
+  }
+
+  return matchedValue;
+}
+
 const MasonryComponent = {
   props: {
     tag: {
@@ -43,42 +75,11 @@ const MasonryComponent = {
 
       this.reCalculateGutterSize(windowWidth);
     },
-    _getBreakpointValue: function(mixed, windowWidth) {
-      const valueAsNum = parseInt(mixed);
-
-      if(valueAsNum > -1) {
-        return mixed;
-      }else if(typeof mixed !== 'object') {
-        return 0;
-      }
-
-      let matchedBreakpoint = Infinity;
-      let matchedValue = mixed.default || 0;
-
-      for(let k in mixed) {
-        const breakpoint = parseInt(k);
-        const breakpointValRaw = mixed[breakpoint];
-        const breakpointVal = parseInt(breakpointValRaw);
-
-        if(isNaN(breakpoint) || isNaN(breakpointVal)) {
-          continue;
-        }
-
-        const isNewBreakpoint = windowWidth <= breakpoint && breakpoint < matchedBreakpoint;
-
-        if(isNewBreakpoint) {
-          matchedBreakpoint = breakpoint;
-          matchedValue = breakpointValRaw;
-        }
-      }
-
-      return matchedValue;
-    },
     reCalculateGutterSize: function(windowWidth) {
-      this.displayGutter = this._getBreakpointValue(this.gutter, windowWidth);
+      this.displayGutter = MasonryBreakpointValue(this.gutter, windowWidth);
     },
     reCalculateColumnCount: function(windowWidth) {
-      let newColumns = this._getBreakpointValue(this.cols, windowWidth);
+      let newColumns = MasonryBreakpointValue(this.cols, windowWidth);
 
       // final bit of making sure its a correct value
       newColumns = Math.max(1, newColumns * 1 || 0);
@@ -119,17 +120,19 @@ const MasonryComponent = {
   render: function (createElement) {
     const childrenInColumns = this.itemsInColumns();
     const columns = [];
+    const gutterSize = parseInt(this.displayGutter) === this.displayGutter * 1 ?
+      (this.displayGutter + 'px') : this.displayGutter;
 
     for(let i = 0; i < childrenInColumns.length; i++) {
       const column = createElement('div', {
         //class: 'my-masonry_column',
-        //key: i + '-' + childrenInColumns.length,
+        key: i + '-' + childrenInColumns.length,
         style: {
           boxSizing: 'border-box',
           backgroundClip: 'padding-box',
           width: (100 / this.displayColumns) + '%',
           border: '0 solid transparent',
-          borderLeftWidth: this.displayGutter
+          borderLeftWidth: gutterSize
         }
       }, childrenInColumns[i]);
 
@@ -145,6 +148,7 @@ const MasonryComponent = {
         style: {
           display: 'flex',
           marginLeft: '-' + this.displayGutter
+          marginLeft: '-' + gutterSize
         }
       } : null,
       columns // array of children

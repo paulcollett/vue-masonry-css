@@ -91,21 +91,19 @@ const MasonryComponent = {
       const itemsInColumns = new Array(currentColumnCount);
       let items = this.$slots.default || [];
 
-      // This component does not work with a child
-      // <transition-group /> ..yet, so we'll be helpful and skip it
+      // This component does not work with a child <transition-group /> ..yet,
+      // so for now we think it may be helpful to ignore and skip it for hopefull future support
       if(items.length === 1 && items[0].componentOptions && items[0].componentOptions.tag == 'transition-group') {
         items = items[0].componentOptions.children;
       }
 
-      for (let i = 0; i < items.length; i++) {
-        // skip Vues' text tags
-        if(!items[i].tag && items[i].text) {
-          i--;
-          items.splice(i, 1);
-          continue;
+      for (let i = 0, visibleItemI = 0; i < items.length; i++, visibleItemI++) {
+        // skip vues empty whitespace elements unless first item
+        if(!items[i].tag && items[i].text == ' ' && visibleItemI > 0) {
+          visibleItemI--;
         }
 
-        const columnIndex = i % currentColumnCount;
+        const columnIndex = visibleItemI % currentColumnCount;
 
         if(!itemsInColumns[columnIndex]) {
           itemsInColumns[columnIndex] = [];

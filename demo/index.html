@@ -2,47 +2,58 @@
 <html>
 <head>
 <meta charset="utf-8" />
+<title>Vue Masonry Css Example</title>
 <meta name="viewport" content="width=device-width" />
+<meta name="google" content="notranslate" />
 <style>
+  body{margin: 3%;font-family: sans-serif;font-size: 14px;line-height:1.5}
+  label{ font-weight: bold }
+  pre,code {background: #f5f5f5;padding: 3px}
+
   .item {
     background: #ccc;
     margin-bottom: 20px;
+    padding: 5px;
   }
 </style>
 </head>
 <body>
+
+<a href="https://github.com/paulcollett/vue-masonry-css">&larr; GitHub</a>
+<h2 style="margin-top: 0">vue-masonry-css example</h2>
+
 <div id="app">
-  <!--<masonry>
-    <div v-for="i in 5">{{i}}</div>
-  </masonry>-->
-  <hr />
   <masonry
   :cols="{default: 4, 1000: 3, 700: 2, 400: 1}"
   :gutter="{default: '30px', 700: '20px'}"
   >
-    <div v-for="(item, index) in 10" :key="index" class="item">Item: {{index + 1}}</div>
+    <div v-for="(item, index) in 10" :key="index" class="item">
+      <strong>Item: {{index + 1}}</strong>
+      <div v-dummy="3,30"></div>
+    </div>
   </masonry>
   <hr />
   <masonry
   :cols="{default: 4, 1000: 3, 700: 2, 400: 1}"
   :gutter="{default: '30px', 700: '20px'}"
   >
-    <div>My Element 1</div>
-    <div>My Element 2</div>
-    <div>My Element 3</div>
-    <div>My Element 4</div>
-    <div>My Element 5</div>
-    <div>My Element 6</div>
+    <div class="item">My Element 1</div>
+    <div class="item">My Element 2</div>
+    <div class="item">My Element 3</div>
+    <div class="item">My Element 4</div>
+    <div class="item">My Element 5</div>
+    <div class="item">My Element 6</div>
   </masonry>
-    <!--
   <hr />
   <masonry
-  :cols="{700: 2}"
-  :gutter="{700: '20px'}"
+  :cols="{default: 5, 1000: 4, 700: 3, 500: 2, 400: 1}"
+  :gutter="{default: '40px', 1000: 30, 700: '20px', 400: 5}"
   >
-    <div>My Element</div>
-    <div>My Element</div>
-  </masonry>-->
+    <div class="item">My Element 1</div>
+    <div class="item">My Element 2</div>
+    <div v-for="(item, index) in 3" :key="index" class="item">Item: {{index + 1 + 2}}</div>
+    <div class="item">My Element 6</div>
+  </masonry>
 </div>
 
 <script src="./demo-bundle.js"></script>

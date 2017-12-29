@@ -56,7 +56,9 @@ const MasonryComponent = {
     }
   },
   mounted: function() {
-    this.reCalculate();
+    this.$nextTick(function () {
+      this.reCalculate();
+    });
 
     if(window) {
       window.addEventListener('resize', this.reCalculate);

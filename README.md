@@ -73,6 +73,8 @@ _note:_ The `cols=` attribute needs to use Vues bind method to evaluate objects.
 </masonry>
 ```
 
+In the above example, the number of columns will default to 4. When the window's is between 1000px and 700px, the number of columns will be 3. The key represents the `max-width` of the window, and `vue-masonry-css` will use the largest key that satisfies this.
+
 ### Example
 
 https://paulcollett.github.io/vue-masonry-css/demo/

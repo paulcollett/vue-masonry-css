@@ -4,29 +4,25 @@ A new masonry component powered by CSS to be fast loading and free of jQuery or 
 
 ### 😎 Why?
 
-Existing solutions like Vue wrapped DeSandro Masonry, while great had downfalls in our Vue app. It required rendering the DOM on load and on during resize before determining the layout which lead to a slow, laggy experiance ..which in our case would occasionally break the layout completely during resize. While being feature packed it showed in the large resulting file size of the JS.
+Existing solutions like Vue wrapped DeSandro Masonry, while popular, don't actually leverage Vue's highly optimized Virtual DOM renderer and in DeSandro Masonry's case, actually renders elements twice before showing the layout. All of this is ok but we found it to lead to a slow, "laggy" user experience that would occasionally miss-render our layout.
 
-To combat this, we looked into the latest techniques using just CSS, including flexbox & css grid which fell short for anything other than basic images. CSS columns came the closest though the ordering reflow (orders down each column before reflowing to the next) visually broke when working with large different sized elements.
+Our need for a simple Masonry layout that was fast, used Vue's Virtual DOM without needing jQuery or other dependencies led us to explore what we could do with the latest techniques using just CSS within a React Component.
 
-Plain ol, div columns to the rescue!
+Between flexbox, css columns, css grid we settled on plain ol' div's and a dab of flexbox that allows for "fluid" responsive layouts by default but most importantly is true to Vue's rendering lifecycle.
 
 *`vue-masonry-css`* Is a Vue Component with a simple interface to order items into the desired columns at specified breakpoints. With minimal CSS this leads to a quick, reliable solution that also has great browser support along with fast rendering performance ..just as Vue.js intended.
 
-#### 🏳️ What doesn't this do
+😄 What does this do
+- Responsive! ..always
+- IE 10+ CSS Support (and, IE9)
+- No Dependencies - Which means no need for jQuery!
+- Works with existing CSS animations on your elements, like fading in on first load
+- CSS powered (Faster to render)
+- Allows for Gaps (Gutters) between elements
 
-* Animate when sorting (..we're keeping it simple here)
-* Work with elements of different widths
-* Box algorithm (not really needed if your elements have the same width)
-* Break when resizing (at least, thats the goal!)
-* Load and render the DOM before sorting out the layout <= actually thats the plus!
-
-#### 😄 What does this do
-* Responsive! ..always
-* IE 9+ CSS Support
-* Depedancy & jQuery free
-* CSS powered (Fast loading & Performant)
-* Gutters
-
+🏳️ What doesn't this do
+- Works with elements with different widths
+- Sorting based on height - This kills performance, so if you don't need it we're here for you
 
 ### 😲 Simple Usage
 

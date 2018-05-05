@@ -101,7 +101,7 @@ const MasonryComponent = {
 
       for (let i = 0, visibleItemI = 0; i < items.length; i++, visibleItemI++) {
         // skip vues empty whitespace elements
-        if(!items[i].tag && items[i].text == ' ') {
+        if(!items[i].tag) {
           visibleItemI--;
         } else {
           const columnIndex = visibleItemI % currentColumnCount;

@@ -83,7 +83,7 @@ const MasonryComponent = {
     reCalculateColumnCount: function(windowWidth) {
       let newColumns = MasonryBreakpointValue(this.cols, windowWidth);
 
-      // final bit of making sure its a correct value
+      // final bit to making sure its a correct value
       newColumns = Math.max(1, newColumns * 1 || 0);
 
       this.displayColumns = newColumns;
@@ -94,24 +94,27 @@ const MasonryComponent = {
       let items = this.$slots.default || [];
 
       // This component does not work with a child <transition-group /> ..yet,
-      // so for now we think it may be helpful to ignore and skip it for hopefull future support
+      // so for now we think it may be helpful to ignore until we can find a way for support
       if(items.length === 1 && items[0].componentOptions && items[0].componentOptions.tag == 'transition-group') {
         items = items[0].componentOptions.children;
       }
 
       for (let i = 0, visibleItemI = 0; i < items.length; i++, visibleItemI++) {
-        // skip vues empty whitespace elements
+        // skip Vue elements without tags, which includes
+        // whitespace elements and also plain text
         if(!items[i].tag) {
           visibleItemI--;
-        } else {
-          const columnIndex = visibleItemI % currentColumnCount;
 
-          if(!itemsInColumns[columnIndex]) {
-            itemsInColumns[columnIndex] = [];
-          }
+          continue;
+        }
 
-          itemsInColumns[columnIndex].push(items[i]);
-	}
+        const columnIndex = visibleItemI % currentColumnCount;
+
+        if(!itemsInColumns[columnIndex]) {
+          itemsInColumns[columnIndex] = [];
+        }
+
+        itemsInColumns[columnIndex].push(items[i]);
       }
 
       return itemsInColumns;
@@ -120,12 +123,13 @@ const MasonryComponent = {
   render: function (createElement) {
     const childrenInColumns = this.itemsInColumns();
     const columns = [];
-    const gutterSize = parseInt(this.displayGutter) === this.displayGutter * 1 ?
-      (this.displayGutter + 'px') : this.displayGutter;
+    const isGutterSizePlainValue = parseInt(this.displayGutter) === this.displayGutter * 1;
+    const gutterSize =  isGutterSizePlainValue ? (this.displayGutter + 'px') : this.displayGutter;
 
+    // Loop through columns
     for(let i = 0; i < childrenInColumns.length; i++) {
+      // Create column element with styles
       const column = createElement('div', {
-        //class: 'my-masonry_column',
         key: i + '-' + childrenInColumns.length,
         style: {
           boxSizing: 'border-box',
@@ -134,23 +138,20 @@ const MasonryComponent = {
           border: '0 solid transparent',
           borderLeftWidth: gutterSize
         }
-      }, childrenInColumns[i]);
+      }, childrenInColumns[i]); // inject child items
 
       columns.push(column);
     }
 
-    this.prevColumns = childrenInColumns;
-
     const wrapper = createElement(
       this.tag, // tag name
       this.css ? {
-        //class: 'my-masonry',
         style: {
           display: ['-webkit-box', '-ms-flexbox', 'flex'],
           marginLeft: '-' + gutterSize
         }
       } : null,
-      columns // array of children
+      columns // column vue elements
     );
 
     return wrapper;

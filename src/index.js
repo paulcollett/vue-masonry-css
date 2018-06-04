@@ -100,18 +100,18 @@ const MasonryComponent = {
       }
 
       for (let i = 0, visibleItemI = 0; i < items.length; i++, visibleItemI++) {
-        // skip vues empty whitespace elements unless first item
-        if(!items[i].tag && items[i].text == ' ' && visibleItemI > 0) {
+        // skip vues empty whitespace elements
+        if(!items[i].tag) {
           visibleItemI--;
-        }
+        } else {
+          const columnIndex = visibleItemI % currentColumnCount;
 
-        const columnIndex = visibleItemI % currentColumnCount;
+          if(!itemsInColumns[columnIndex]) {
+            itemsInColumns[columnIndex] = [];
+          }
 
-        if(!itemsInColumns[columnIndex]) {
-          itemsInColumns[columnIndex] = [];
-        }
-
-        itemsInColumns[columnIndex].push(items[i]);
+          itemsInColumns[columnIndex].push(items[i]);
+	}
       }
 
       return itemsInColumns;

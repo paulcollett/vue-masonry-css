@@ -48,11 +48,11 @@ const MasonryComponent = {
       type: [Boolean],
       default: true
     },
-    contentClass: {
+    columnClass: {
       type: [String],
       default: []
     },
-    contentAttr: {
+    columnAttr: {
       type: [Object],
       default: {}
     }
@@ -151,8 +151,8 @@ const MasonryComponent = {
           border: '0 solid transparent',
           borderLeftWidth: gutterSize
         },
-        class: this.contentClass,
-        attrs: this.contentAttr
+        class: this.columnClass,
+        attrs: this.columnAttr
       }, childrenInColumns[i]); // inject child items
 
       columns.push(column);

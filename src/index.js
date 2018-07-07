@@ -47,6 +47,14 @@ const MasonryComponent = {
     css: {
       type: [Boolean],
       default: true
+    },
+    columnClass: {
+      type: [String],
+      default: []
+    },
+    columnAttr: {
+      type: [Object],
+      default: {}
     }
   },
   data: function() {
@@ -142,7 +150,9 @@ const MasonryComponent = {
           width: (100 / this.displayColumns) + '%',
           border: '0 solid transparent',
           borderLeftWidth: gutterSize
-        }
+        },
+        class: this.columnClass,
+        attrs: this.columnAttr
       }, childrenInColumns[i]); // inject child items
 
       columns.push(column);

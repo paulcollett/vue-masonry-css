@@ -1,4 +1,41 @@
-const MasonryBreakpointValue = (mixed, windowWidth) => {
+// the component name `<masonry />`
+// can be overridden with `Vue.use(Masonry, { name: 'the-masonry' });`
+const componentName = 'masonry';
+
+const props = {
+  tag: {
+    type: [String],
+    default: 'div'
+  },
+  cols: {
+    type: [Object, Number, String],
+    default: 2
+  },
+  gutter: {
+    type: [Object, Number, String],
+    default: 0
+  },
+  css: {
+    type: [Boolean],
+    default: true
+  },
+  columnTag: {
+    type: [String],
+    default: 'div'
+  },
+  columnClass: {
+    type: [String, Array, Object],
+    default: () => []
+  },
+  columnAttr: {
+    type: [Object],
+    default: () => ({})
+  }
+};
+
+// Get the resulting value from  `:col=` prop
+// based on the window width
+const breakpointValue = (mixed, windowWidth) => {
   const valueAsNum = parseInt(mixed);
 
   if(valueAsNum > -1) {
@@ -30,146 +67,140 @@ const MasonryBreakpointValue = (mixed, windowWidth) => {
   return matchedValue;
 }
 
-const MasonryComponent = {
-  props: {
-    tag: {
-      type: [String],
-      default: 'div'
-    },
-    cols: {
-      type: [Object, Number],
-      default: 2
-    },
-    gutter: {
-      type: [Object, Number, String],
-      default: 2
-    },
-    css: {
-      type: [Boolean],
-      default: true
-    },
-    columnClass: {
-      type: [String],
-      default: []
-    },
-    columnAttr: {
-      type: [Object],
-      default: {}
-    }
-  },
-  data: function() {
+const component = {
+  props,
+
+  data() {
     return {
       displayColumns: 2,
-      displayGutter: '0px'
+      displayGutter: 0
     }
   },
-  mounted: function() {
-    this.$nextTick(function () {
+
+  mounted() {
+    this.$nextTick(() => {
       this.reCalculate();
     });
 
+    // Bind resize handler to page
     if(window) {
       window.addEventListener('resize', this.reCalculate);
     }
   },
-  updated: function() {
-    this.$nextTick(function () {
+
+  updated() {
+    this.$nextTick(() => {
       this.reCalculate();
     });
   },
-  beforeDestroy: function() {
+
+  beforeDestroy() {
     if(window) {
       window.removeEventListener('resize', this.reCalculate);
     }
   },
+
   methods: {
-    reCalculate: function() {
-      const windowWidth = (window ? window.innerWidth : null) || Infinity;
+    // Recalculate how many columns to display based on window width
+    // and the value of the passed `:cols=` prop
+    reCalculate() {
+      const previousWindowWidth = this.windowWidth;
 
-      this.reCalculateColumnCount(windowWidth);
+      this.windowWidth = (window ? window.innerWidth : null) || Infinity;
 
-      this.reCalculateGutterSize(windowWidth);
+      // Window resize events get triggered on page height
+      // change which when loading the page can result in multiple
+      // needless calculations. We prevent this here.
+      if(previousWindowWidth === this.windowWidth) {
+        return;
+      }
+
+      this._reCalculateColumnCount(this.windowWidth);
+
+      this._reCalculateGutterSize(this.windowWidth);
     },
-    reCalculateGutterSize: function(windowWidth) {
-      this.displayGutter = MasonryBreakpointValue(this.gutter, windowWidth);
-    },
-    reCalculateColumnCount: function(windowWidth) {
-      let newColumns = MasonryBreakpointValue(this.cols, windowWidth);
 
-      // final bit to making sure its a correct value
-      newColumns = Math.max(1, newColumns * 1 || 0);
+    _reCalculateGutterSize(windowWidth) {
+      this.displayGutter = breakpointValue(this.gutter, windowWidth);
+    },
+
+    _reCalculateColumnCount(windowWidth) {
+      let newColumns = breakpointValue(this.cols, windowWidth);
+
+      // Make sure we can return a valid value
+      newColumns = Math.max(1, Number(newColumns) || 0);
 
       this.displayColumns = newColumns;
     },
-    itemsInColumns: function() {
-      const currentColumnCount = this.displayColumns;
-      const itemsInColumns = new Array(currentColumnCount);
-      let items = this.$slots.default || [];
+
+    _getChildItemsInColumnsArray() {
+      const columns = [];
+      let childItems = this.$slots.default || [];
 
       // This component does not work with a child <transition-group /> ..yet,
       // so for now we think it may be helpful to ignore until we can find a way for support
-      if(items.length === 1 && items[0].componentOptions && items[0].componentOptions.tag == 'transition-group') {
-        items = items[0].componentOptions.children;
+      if(childItems.length === 1 && childItems[0].componentOptions && childItems[0].componentOptions.tag == 'transition-group') {
+        childItems = childItems[0].componentOptions.children;
       }
 
-      for (let i = 0, visibleItemI = 0; i < items.length; i++, visibleItemI++) {
+      // Loop through child elements
+      for (let i = 0, visibleItemI = 0; i < childItems.length; i++, visibleItemI++) {
         // skip Vue elements without tags, which includes
         // whitespace elements and also plain text
-        if(!items[i].tag) {
+        if(!childItems[i].tag) {
           visibleItemI--;
 
           continue;
         }
 
-        const columnIndex = visibleItemI % currentColumnCount;
+        // Get the column index the child item will end up in
+        const columnIndex = visibleItemI % this.displayColumns;
 
-        if(!itemsInColumns[columnIndex]) {
-          itemsInColumns[columnIndex] = [];
+        if(!columns[columnIndex]) {
+          columns[columnIndex] = [];
         }
 
-        itemsInColumns[columnIndex].push(items[i]);
+        columns[columnIndex].push(childItems[i]);
       }
 
-      return itemsInColumns;
+      return columns;
     }
   },
-  render: function (createElement) {
-    const childrenInColumns = this.itemsInColumns();
-    const columns = [];
-    const isGutterSizePlainValue = parseInt(this.displayGutter) === this.displayGutter * 1;
-    const gutterSize =  isGutterSizePlainValue ? (this.displayGutter + 'px') : this.displayGutter;
 
-    // Loop through columns
-    for(let i = 0; i < childrenInColumns.length; i++) {
-      // Create column element with styles
-      const column = createElement('div', {
-        key: i + '-' + childrenInColumns.length,
-        style: {
-          boxSizing: 'border-box',
-          backgroundClip: 'padding-box',
-          width: (100 / this.displayColumns) + '%',
-          border: '0 solid transparent',
-          borderLeftWidth: gutterSize
-        },
+  render(createElement) {
+    const columnsContainingChildren = this._getChildItemsInColumnsArray();
+    const isGutterSizeUnitless = parseInt(this.displayGutter) === this.displayGutter * 1;
+    const gutterSizeWithUnit =  isGutterSizeUnitless ? `${this.displayGutter}px` : this.displayGutter;
+
+    const columnStyle = {
+      boxSizing: 'border-box',
+      backgroundClip: 'padding-box',
+      width: `${100 / this.displayColumns}%`,
+      border: '0 solid transparent',
+      borderLeftWidth: gutterSizeWithUnit
+    };
+
+    const columns = columnsContainingChildren.map((children, index) => {
+      /// Create column element and inject the children
+      return createElement(this.columnTag, {
+        key: index + '-' + columnsContainingChildren.length,
+        style: this.css ? columnStyle : null,
         class: this.columnClass,
         attrs: this.columnAttr
-      }, childrenInColumns[i]); // inject child items
+      }, children); // specify child items here
+    });
 
-      columns.push(column);
-    }
+    const containerStyle = {
+      display: ['-webkit-box', '-ms-flexbox', 'flex'],
+      marginLeft: `-${gutterSizeWithUnit}`
+    };
 
-    const wrapper = createElement(
+    // Return wrapper with columns
+    return createElement(
       this.tag, // tag name
-      this.css ? {
-        style: {
-          display: ['-webkit-box', '-ms-flexbox', 'flex'],
-          marginLeft: '-' + gutterSize
-        }
-      } : null,
+      this.css ? { style: containerStyle } : null, // element options
       columns // column vue elements
     );
-
-    return wrapper;
   }
 };
 
@@ -180,7 +211,11 @@ Plugin.install = function (Vue, options) {
     return;
   }
 
-  Vue.component((options && options.name) || 'masonry', MasonryComponent);
+  if(options && options.name) {
+    Vue.component(options.name, component);
+  } else {
+    Vue.component(componentName, component);
+  }
 }
 
 if (typeof window !== 'undefined' && window.Vue) {

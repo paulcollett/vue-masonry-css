@@ -43,6 +43,6 @@
     "vue": "^2.5.16",
     "vue-dummy": "^1.1.1",
     "webpack": "^3.6.0",
-    "webpack-dev-server": "^2.9.1"
+    "webpack-dev-server": "^3.1.11"
   }
 }

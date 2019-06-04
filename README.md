@@ -54,7 +54,7 @@ In your HTML template...
 </masonry>
 ```
 
-### Resposive Breakpoints
+### Responsive Breakpoints
 
 Different columns and gutter sizes can be specified by passing an object containing key's of the window widths and their values representing the number of columns or gutter size. To have a fallback value, use the `default` key.
 

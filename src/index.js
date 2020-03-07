@@ -30,6 +30,10 @@ const props = {
   columnAttr: {
     type: [Object],
     default: () => ({})
+  },
+  defaultDisplayColumns: {
+    type: Number,
+    default: 2
   }
 };
 
@@ -75,6 +79,10 @@ const component = {
       displayColumns: 2,
       displayGutter: 0
     }
+  },
+
+  created() {
+    this.displayColumns = this.defaultDisplayColumns;
   },
 
   mounted() {

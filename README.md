@@ -64,6 +64,7 @@ _note:_ The `cols=` attribute needs to use Vues bind method to evaluate objects.
 <masonry
   :cols="{default: 4, 1000: 3, 700: 2, 400: 1}"
   :gutter="{default: '30px', 700: '15px'}"
+  :default-display-columns="2"
   >
   <div v-for="(item, index) in items" :key="index">Item: {{index + 1}}</div>
 </masonry>
